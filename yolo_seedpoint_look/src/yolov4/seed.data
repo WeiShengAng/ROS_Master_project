@@ -1,0 +1,5 @@
+classes = 2
+train  = /home/icmems/Documents/s110033402/seed_detection/data/train.txt
+valid  = /home/icmems/Documents/s110033402/seed_detection/data/valid.txt
+names  = /home/icmems/Documents/s110033402/seed_detection/data/seed.names
+backup = /home/icmems/Documents/s110033402/seed_detection/backup
