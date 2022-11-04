@@ -17,7 +17,7 @@ def callback(msg):
     rospy.loginfo(rospy.get_caller_id() + "i heard %s", msg.data)
 
 while not rospy.is_shutdown():
-    Motors_Node()
+    SeedFeeding_Node()
     while True:
         s.write('T'.encode()) # because what send is str, use encode to transform str to bytes
         sleep(0.1)
