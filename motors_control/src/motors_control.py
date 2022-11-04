@@ -5,19 +5,35 @@ import serial
 from time import sleep
 
 s=serial.Serial("COM8",9600)
+s.timeout = 0.5
 
-def SeedFeeding_Node():
+def SeedFeeding():
     rospy.init_node('motors', anonymous=True)
-    pub = rospy.Publisher('chatter',String)
-    rospy.Subscriber('chatter', String, callback)
+    pub = rospy.Publisher('SeedFeedDone',String)
+    rospy.Subscriber('LookForSeed', int, callback)
     rate = rospy.Rate(10)
     rate.sleep()
 
+    # publish seed feeding done to yolo
+    news = "Seed Feeding Done"
+    pub.publish(news)
+
+    # wait yolo to check if there are seed
+
+
 def callback(msg):
-    rospy.loginfo(rospy.get_caller_id() + "i heard %s", msg.data)
+    rospy.loginfo("Seed info from yolo: %i", msg.data)
 
 while not rospy.is_shutdown():
-    SeedFeeding_Node()
-    while True:
-        s.write('T'.encode()) # because what send is str, use encode to transform str to bytes
-        sleep(0.1)
+
+    s.write('T'.encode()) # because what send is str, use encode to transform str to bytes
+    sleep(0.1)
+
+    msg = s.readline().decode() # because what receive is bytes, use decode to transform bytes to str
+    print(msg)
+    if msg == "Seed Feeding Motor Runned Finish":
+        while True:
+            SeedFeeding()
+
+    else:
+        pass

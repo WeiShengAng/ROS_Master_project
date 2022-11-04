@@ -3,7 +3,7 @@ import serial
 from time import sleep
 
 s=serial.Serial("COM8",9600)
-
+s.timeout = 1 #timeout means wait for 1 second, if no new data coming in then quit readline
 try:
     while True:
         s.write('T'.encode()) # because what send is str, use encode to transform str to bytes
