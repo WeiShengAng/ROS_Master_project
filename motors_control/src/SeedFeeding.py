@@ -4,9 +4,9 @@ import rospy
 import serial
 from time import sleep
 
-s=serial.Serial("COM8",9600)
+s=serial.Serial("/dev/ttyUSB0",9600)
 s.timeout = 0.5
-step = 0
+step = 1
 
 def SeedFeeding_node():
     rospy.init_node('Seed_Feeding_Motor', anonymous=True)
@@ -32,8 +32,7 @@ def callback(msg):
 
 #def Gripper_sub():
 
-while not rospy.is_shutdown():
-
+while True:
     if step == 0:
         while True:
             resp = s.readline().decode() # because what receive is bytes, use decode to transform bytes to str
