@@ -6,14 +6,18 @@ import time
 import os
 
 #define a node then publish topic 'chatter' and also can subscribe topic
-def yolo_node():
-    rospy.init_node('yolo')
-    pub = rospy.Publisher('chatter',String)
+def YOLO_node():
+    rospy.init_node('YOLO')
+
+    pub = rospy.Publisher('Seed_Detect_to_SF', String) #s end msg to seed feeding and let him know it have seed
+    pub_command = "have seed point"
+    pub.publish(pub_command)
+
+    pub2 = rospy.Publisher('Seed_Detect_to_SR', String) # send msg to seed rolling
+    pub2_command = "Roll the Seed"
+    pub2.publish(pub2_command)
+
     rate = rospy.Rate(10) #10hz
-    while not rospy.is_shutdown():
-        yolo_command = "have seed point"
-        rospy.loginfo(yolo_command)
-        pub.publish(yolo_command)
     rate.sleep
 
 # get the label names that named by us
@@ -77,7 +81,9 @@ if len(idxs) > 0:
             center_Y = int(boxes[i][1] + (boxes[i][3] / 2))
             text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
             cv.putText(image, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX,0.5, color, 2)
+    
+    YOLO_node() #execute yolo node because there are seed
 
-yolo_node() #execute node
+
 cv.imshow("Image", image)
 cv.waitKey(0)
