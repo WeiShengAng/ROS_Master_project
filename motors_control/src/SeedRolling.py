@@ -11,8 +11,8 @@ step = 0
 def SeedRolling_node():
     rospy.init_node('Seed_Rolling_Motor', anonymous=True)
 
-    pub = rospy.Publisher('Seed_Roll',String) #publisher define
-    rospy.Subscriber('Seed_Detect_to_SR', String, callback) #subscriber define
+    pub = rospy.Publisher('Arduino_cmd_SR',String) #publisher define
+    rospy.Subscriber('Roll_it', String, callback) #subscriber define
 
     rate = rospy.Rate(10)
     rate.sleep()

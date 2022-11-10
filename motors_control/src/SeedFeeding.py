@@ -10,7 +10,7 @@ step = 1
 
 def SeedFeeding_node():
     rospy.init_node('Seed_Feeding_Motor', anonymous=True)
-
+    
     pub = rospy.Publisher('Seed_Feed',String) #publisher define
     rospy.Subscriber('Seed_Detect_to_SF', String, callback) #subscriber define
 
