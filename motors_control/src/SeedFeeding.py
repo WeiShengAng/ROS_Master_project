@@ -9,9 +9,9 @@ s.timeout = 0.5
 step = 0
 
 def SeedFeeding_node():
-    rospy.init_node('motors', anonymous=True)
+    rospy.init_node('Seed_Feeding_Motor', anonymous=True)
 
-    pub = rospy.Publisher('Seed_Feed',String) #published define
+    pub = rospy.Publisher('Seed_Feed',String) #publisher define
     rospy.Subscriber('Seed_Detect_to_SF', String, callback) #subscriber define
 
     rate = rospy.Rate(10)
@@ -27,6 +27,7 @@ def SeedFeeding_node():
 def callback(msg):
     rospy.loginfo(msg.data)
     step = 3
+    s.close()
 
 
 #def Gripper_sub():
@@ -61,5 +62,3 @@ while not rospy.is_shutdown():
     elif step == 3:
         while True:
             print("stop at step = 3")
-        #pass
-#Seed Feeding Motor Runned Finish
