@@ -3,3 +3,5 @@
 __pycache__/
 darknet_ros/
 rosserial/
+yolov4/
+yolov4-tiny/
