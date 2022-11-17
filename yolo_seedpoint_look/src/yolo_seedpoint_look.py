@@ -1,11 +1,11 @@
+
 from std_msgs.msg import String
 import rospy
 import numpy as np
 import cv2 as cv
 from time import sleep
 import os
-
-feedback = 1
+import time
 
 #define a node then publish topic 'chatter' and also can subscribe topic
 def YOLO_node(cmd):
@@ -13,14 +13,16 @@ def YOLO_node(cmd):
 
     if cmd == 1:
         #if run only once fail, then use for loop and run few more times
-        pub = rospy.Publisher('Arduino_cmd_SR', String) # call arduino roll the seed
+        pub = rospy.Publisher('Arduino_cmd_SR', String, queue_size=10) # call arduino roll the seed
         pub_command = "Roll"
         pub.publish(pub_command)
-        feedback = 2
+        # print("here")
+        # rospy.Subscriber('Arduino_SeedRolling', String, SRcallback)
+        # rospy.spin()
 
-    elif cmd == 2:
+    elif cmd == 0:
         #if run only once fail, then use for loop and run few more times
-        pub2 = rospy.Publisher('Arduino_cmd_SP', String) # seed position is right, call arduino plant it
+        pub2 = rospy.Publisher('Arduino_cmd_SP', String, queue_size=10) # seed position is right, call arduino plant it
         pub2_command = "Plant"
         pub2.publish(pub2_command)
         
@@ -31,13 +33,18 @@ def YOLO_node(cmd):
     else:
          pass
 
-    rate = rospy.Rate(10) #10hz
-    rate.sleep
+    rate = rospy.Rate(100) #10hz
+    rate.sleep()
+
+
+# def SRcallback():
+#     rospy.loginfo("Rolling MSG Received")
 
 def callback():
     rospy.loginfo("Planted MSG Received")
 
 def yolo_detect():
+    roll_cmd = 0
     # get the label names that named by us
     labelsPath = "yolov4/seed.names"
     LABELS = None
@@ -59,7 +66,7 @@ def yolo_detect():
 
 
     ln = net.getLayerNames()
-    ln = [ln[i - 1] for i in net.getUnconnectedOutLayers()]
+    ln = [ln[i - 1] for i in net.getUnconnectedOutLayers()] # the reason here giv out error is because using python2, change to python 3 then solved
     blob = cv.dnn.blobFromImage(image, 1 / 255.0, (416, 416),swapRB=True, crop=False)
     net.setInput(blob)
 
@@ -99,13 +106,15 @@ def yolo_detect():
                 center_Y = int(boxes[i][1] + (boxes[i][3] / 2))
                 text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
                 cv.putText(image, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX,0.5, color, 2)
+                if classIDs[i] == 1:
+                    roll_cmd = 0
+                else:
+                    pass
                 
-    cv.imshow("Image", image)
-    cv.waitKey(0)
+    #cv.imshow("Image", image)
+    #cv.waitKey(0)
+    return roll_cmd
 
-
-yolo_detect()
-YOLO_node(feedback) # execute with feedback = 1, roll it
-YOLO_node(feedback) # execute with feedback = 2, plant it and wait for resp
+YOLO_node(yolo_detect()) # use the return value of yolo detection as  the cmd input to yolo_node
 
 
