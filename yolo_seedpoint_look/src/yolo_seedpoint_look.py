@@ -7,41 +7,47 @@ from time import sleep
 import os
 import time
 
+loop_count = 0
+
 #define a node then publish topic 'chatter' and also can subscribe topic
-def YOLO_node(cmd):
-    rospy.init_node('YOLO')
+rospy.init_node('YOLO')
 
-    if cmd == 1:
-        #if run only once fail, then use for loop and run few more times
-        pub = rospy.Publisher('Arduino_cmd_SR', String, queue_size=10) # call arduino roll the seed
-        pub_command = "Roll"
-        pub.publish(pub_command)
-        # print("here")
-        # rospy.Subscriber('Arduino_SeedRolling', String, SRcallback)
-        # rospy.spin()
+def SeedRoll():
+    #if run only once fail, then use for loop and run few more times
+    pub = rospy.Publisher('Arduino_cmd_SR', String, queue_size=10) # call arduino roll the seed
+    pub_command = "Roll"
+    pub.publish(pub_command)
 
-    elif cmd == 0:
-        #if run only once fail, then use for loop and run few more times
-        pub2 = rospy.Publisher('Arduino_cmd_SP', String, queue_size=10) # seed position is right, call arduino plant it
-        pub2_command = "Plant"
-        pub2.publish(pub2_command)
-        
-        rospy.Subscriber('Arduino_SeedPlanting', String, callback) #subscriber define
+    try:
+        data = rospy.wait_for_message("/Arduino_SeedRolling", String, timeout = 1)
+        print(data)
+        length = len(data.data)
+        if length > 4:
+            return 1
+    except rospy.ROSException:
+        pass
 
-        rospy.spin()
-
-    else:
-         pass
-
-    rate = rospy.Rate(100) #10hz
+    rate = rospy.Rate(1000) #10hz
     rate.sleep()
 
+def SeedPlanting():
+    #if run only once fail, then use for loop and run few more times
+    pub2 = rospy.Publisher('Arduino_cmd_SP', String, queue_size=10) # seed position is right, call arduino plant it
+    pub2_command = "Plant"
+    print("Planting")
+    pub2.publish(pub2_command)
 
-# def SRcallback():
-#     rospy.loginfo("Rolling MSG Received")
+    try:
+        data2 = rospy.wait_for_message("/Arduino_SeedPlanting", String, timeout = 1)
+        print(data2)
+        length2 = len(data2.data)
+        if length2 > 4:
+            return 1
+    except rospy.ROSException:
+        pass
 
-def callback():
-    rospy.loginfo("Planted MSG Received")
+    rate = rospy.Rate(1000) #10hz
+    rate.sleep()
 
 def yolo_detect():
     roll_cmd = 0
@@ -79,7 +85,7 @@ def yolo_detect():
 
     boxes = []
     confidences = []
-    classIDs = []
+    classIDs = [] 
     for output in layerOutputs:
         for detection in output:
             scores = detection[5:]
@@ -107,14 +113,36 @@ def yolo_detect():
                 text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
                 cv.putText(image, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX,0.5, color, 2)
                 if classIDs[i] == 1:
-                    roll_cmd = 0
-                else:
-                    pass
+                    roll_cmd = 1
+
                 
     #cv.imshow("Image", image)
     #cv.waitKey(0)
     return roll_cmd
 
-YOLO_node(yolo_detect()) # use the return value of yolo detection as  the cmd input to yolo_node
 
+def main():
+    # while True:
+    #     feed_stats = SeedFeeding()
+    #     if feed_stats == 1:
+    #         break
+    
+    cmd = yolo_detect()         # first we detect the seed first
+    # cmd = 0 # to test plant
+    
+    if cmd == 1:                # if detected seed point
+        while True:             
+                roll_stats = SeedRoll()  # roll the seed
+                if roll_stats == 1:      # if seed roll done then break
+                    break
 
+    elif cmd == 0:
+        while True:
+            plant_stats = SeedPlanting() # plant the seed
+            if plant_stats == 1:         # if plant done then break
+                break
+    
+while True:
+    main()
+    loop_count = loop_count+ 1
+    print(loop_count)
