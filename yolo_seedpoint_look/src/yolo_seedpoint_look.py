@@ -7,6 +7,9 @@ from time import sleep
 import os
 import time
 
+cam_port = 10
+cam = cv.VideoCapture(cam_port)
+
 loop_count = 0
 feed_stats = 2
 #define a node then publish topic 'chatter' and also can subscribe topic
@@ -47,7 +50,7 @@ def SeedPlanting():
     pub2_command = "Plant"
     print("Planting...")
     pub2.publish(pub2_command)
-
+    
     try:
         data2 = rospy.wait_for_message("/Arduino_SeedPlanting", String, timeout = 1)
         length2 = len(data2.data)
@@ -62,6 +65,7 @@ def SeedPlanting():
 
 def yolo_detect(img_input):
     roll_cmd = 0
+    start_cmd = 0 # o means no seed
     # get the label names that named by us
     labelsPath = "yolov4/seed.names"
     LABELS = None
@@ -72,19 +76,23 @@ def yolo_detect(img_input):
     np.random.seed(42)
     COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),dtype="uint8") 
 
-    weightsPath = "yolov4/yolov4_best.weights"
-    configPath = "yolov4/yolov4.cfg"
+    weightsPath = "yolov4/yolov4-tiny-obj_best.weights"
+    configPath = "yolov4/yolov4-tiny-obj.cfg"
     net = cv.dnn.readNetFromDarknet(configPath, weightsPath)
 
     #import image and define the height and weight
-    image = cv.imread(img_input)
-    #imS = cv.resize(image, (960, 540))  #resize the window size of image show
-    (H, W) = image.shape[:2]
+
+    #image1 = cv.imread(img_input) # use this line when using jpg file as example
+    #imS = cv.resize(image1, (960, 540))  #resize the window size of image1 show
+
+    image1 = img_input # use this line when using camera to take photo
+
+    (H, W) = image1.shape[:2]
 
 
     ln = net.getLayerNames()
     ln = [ln[i - 1] for i in net.getUnconnectedOutLayers()] # the reason here giv out error is because using python2, change to python 3 then solved
-    blob = cv.dnn.blobFromImage(image, 1 / 255.0, (416, 416),swapRB=True, crop=False)
+    blob = cv.dnn.blobFromImage(image1, 1 / 255.0, (416, 416),swapRB=True, crop=False)
     net.setInput(blob)
 
     # record the time of start and end to detect the object
@@ -118,11 +126,11 @@ def yolo_detect(img_input):
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
                 color = [int(c) for c in COLORS[classIDs[i]]] 
-                cv.rectangle(image, (x, y), (x + w, y + h), color, 2)
+                cv.rectangle(image1, (x, y), (x + w, y + h), color, 2)
                 center_X = int(boxes[i][0] + (boxes[i][2] / 2))
                 center_Y = int(boxes[i][1] + (boxes[i][3] / 2))
                 text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
-                cv.putText(image, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX,0.5, color, 2)
+                cv.putText(image1, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX,0.5, color, 2)
 
                 if classIDs[i] == 0:
                     start_cmd = 1
@@ -131,7 +139,7 @@ def yolo_detect(img_input):
                     roll_cmd = 1
 
                 
-    #cv.imshow("Image", image)
+    cv.imshow("Image", image1)
     #cv.waitKey(0)
     return start_cmd, roll_cmd
 
@@ -144,21 +152,43 @@ def main(stat):
     #     if feed_stats == 1:
     #         break
     
-    while True:
+    while True: # yolo detect while loop
         
+        """
+        # to use diff picture as example #
+
         if stat % 2 != 0:
             print("############ START ############\n")
-            yolo_input = "test4.jpg"
+            yolo_input = "test4.jpg" # have seed point
         else:
-            yolo_input = "test.jpg"
+            yolo_input = "test.jpg" # dont have see point
+
+        # to use diff picture as example #
+        """
+
+        # use real time seed photo
+
+        result, image = cam.read()
+
+        if result:
+            feed_stats,cmd = yolo_detect(image)
+            print(feed_stats,cmd)
+            cv.waitKey(0)
+            cv.destroyWindow("Image")
+
+        else:
+            print("no image")
+            exit()
+
+        # use real time seed photo
+
         stat =~ stat # =~ means not, which let 1 become 0, 0 become 1
         
-        feed_stats, cmd = yolo_detect(yolo_input) # feed_stats = 1 means found seed, the seed drop successfully on fanzhuan
+        #feed_stats, cmd = yolo_detect(yolo_input) # feed_stats = 1 means found seed, the seed drop successfully on fanzhuan
                                                   # this  function is also use to proceed the cmd to decide whether roll or plant the seed
         if feed_stats == 1: 
-            
-            # print("seed: ", feed_stats, " , cmd: ", cmd)
-            break
+            break # if got seed (feed_stats) break this while loop, cont to do the code under
+                  # if dont have seed, keep running this yolo detect while loop
     
     # cmd = yolo_detect()         # first we detect the seed first
     # cmd = 0 # to test plant
