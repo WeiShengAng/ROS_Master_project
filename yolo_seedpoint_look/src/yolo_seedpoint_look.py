@@ -7,7 +7,7 @@ from time import sleep
 import os
 import time
 
-cam_port = 10
+cam_port = 2
 cam = cv.VideoCapture(cam_port)
 
 loop_count = 0
@@ -56,6 +56,7 @@ def SeedPlanting():
         length2 = len(data2.data)
         if length2 > 4:
             print("Seed Planted\n")
+            #exit()
             return 1
     except rospy.ROSException:
         pass
@@ -76,6 +77,7 @@ def yolo_detect(img_input):
     np.random.seed(42)
     COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),dtype="uint8") 
 
+    # current weight version : overfit_solve #
     weightsPath = "yolov4/yolov4-tiny-obj_best.weights"
     configPath = "yolov4/yolov4-tiny-obj.cfg"
     net = cv.dnn.readNetFromDarknet(configPath, weightsPath)
@@ -110,7 +112,7 @@ def yolo_detect(img_input):
             scores = detection[5:]
             classID = np.argmax(scores) 
             confidence = scores[classID]
-            if confidence > 0.8:
+            if confidence > 0.75:
                 box = detection[0:4] * np.array([W, H, W, H])
                 (centerX, centerY, width, height) = box.astype("int")
                 x = int(centerX - (width / 2))

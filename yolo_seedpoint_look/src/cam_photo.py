@@ -8,7 +8,7 @@ import numpy as np
 import time
 
 
-cam_port = 7
+cam_port = 0
 cam = cv.VideoCapture(cam_port)
 
 def yolo_detect(img_input):
@@ -24,8 +24,12 @@ def yolo_detect(img_input):
     np.random.seed(42)
     COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),dtype="uint8") 
 
-    weightsPath = "yolov4/yolov4-tiny-obj_final.weights"
+    weightsPath = "yolov4/yolov4-tiny-obj_best.weights"
     configPath = "yolov4/yolov4-tiny-obj.cfg"
+
+    # weightsPath = "yolov4/yolov4-tiny-obj_best.weights"
+    # configPath = "yolov4/yolov4-tiny-obj.cfg"
+
     net = cv.dnn.readNetFromDarknet(configPath, weightsPath)
 
     #import image and define the height and weight
@@ -58,7 +62,7 @@ def yolo_detect(img_input):
             scores = detection[5:]
             classID = np.argmax(scores) 
             confidence = scores[classID]
-            if confidence > 0.8:
+            if confidence > 0.7:
                 box = detection[0:4] * np.array([W, H, W, H])
                 (centerX, centerY, width, height) = box.astype("int")
                 x = int(centerX - (width / 2))
