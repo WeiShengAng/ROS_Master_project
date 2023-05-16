@@ -161,9 +161,13 @@ def main(stat):
 
         if stat % 2 != 0:
             print("############ START ############\n")
-            yolo_input = "test4.jpg" # have seed point
+            # yolo_input = "test4.jpg" # have seed point
+            feed_stats, cmd = 1,1
+            print(feed_stats,cmd)
         else:
-            yolo_input = "test.jpg" # dont have see point
+            feed_stats, cmd = 1,0
+            print(feed_stats,cmd)
+            # yolo_input = "test.jpg" # dont have see point
 
         # to use diff picture as example #
         #"""
@@ -182,9 +186,8 @@ def main(stat):
 
         stat =~ stat # =~ means not, which let 1 become 0, 0 become 1
         
-        feed_stats, cmd = yolo_detect(yolo_input) # feed_stats = 1 means found seed, the seed drop successfully on fanzhuan
+        # feed_stats, cmd = yolo_detect(yolo_input) # feed_stats = 1 means found seed, the seed drop successfully on fanzhuan
                                                   # this  function is also use to proceed the cmd to decide whether roll or plant the seed
-        print(feed_stats,cmd)
         if feed_stats == 1: 
             break # if got seed (feed_stats) break this while loop, cont to do the code under
                   # if dont have seed, keep running this yolo detect while loop
