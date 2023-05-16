@@ -7,7 +7,7 @@ from time import sleep
 import os
 import time
 
-cam_port = "/dev/video1"
+cam_port = 4
 cam = cv.VideoCapture(cam_port)
 
 loop_count = 0
@@ -32,8 +32,8 @@ def SeedRoll():
     print("Rolling Seed...")
     pub.publish(pub_command)
 
-    try:
-        data1 = rospy.wait_for_message("/Arduino_SeedRolling", String, timeout = 1)
+    try: 
+        data1 = rospy.wait_for_message("/Arduino_SeedRolling", String, timeout=1) # timeout = 1 deleted
         length1 = len(data1.data)
         if length1 > 4:
             print("Seed Rolled\n")
@@ -41,7 +41,7 @@ def SeedRoll():
     except rospy.ROSException:
         pass
 
-    rate = rospy.Rate(1000) #10hz
+    rate = rospy.Rate(10) #10hz
     rate.sleep()
 
 def SeedPlanting():
@@ -52,16 +52,16 @@ def SeedPlanting():
     pub2.publish(pub2_command)
     
     try:
-        data2 = rospy.wait_for_message("/Arduino_SeedPlanting", String, timeout = 1)
+        data2 = rospy.wait_for_message("/Arduino_SeedPlanting", String, timeout=1) # timeout = 1 deleted
         length2 = len(data2.data)
         if length2 > 4:
             print("Seed Planted\n")
-            #exit()
+            exit()
             return 1
     except rospy.ROSException:
         pass
 
-    rate = rospy.Rate(1000) #10hz
+    rate = rospy.Rate(10) #10hz
     rate.sleep()
 
 def yolo_detect(img_input):
@@ -84,10 +84,10 @@ def yolo_detect(img_input):
 
     #import image and define the height and weight
 
-    #image1 = cv.imread(img_input) # use this line when using jpg file as example
-    #imS = cv.resize(image1, (960, 540))  #resize the window size of image1 show
+    image1 = cv.imread(img_input) # use this line when using jpg file as example
+    imS = cv.resize(image1, (960, 540))  #resize the window size of image1 show
 
-    image1 = img_input # use this line when using camera to take photo
+    # image1 = img_input # use this line when using camera to take photo
 
     (H, W) = image1.shape[:2]
 
@@ -141,8 +141,8 @@ def yolo_detect(img_input):
                     roll_cmd = 1
 
                 
-    cv.imshow("Image", image1)
-    #cv.waitKey(0)
+    # cv.imshow("Image", image1)
+    # cv.waitKey(0)
     return start_cmd, roll_cmd
 
 
@@ -156,7 +156,7 @@ def main(stat):
     
     while True: # yolo detect while loop
         
-        """
+        #"""
         # to use diff picture as example #
 
         if stat % 2 != 0:
@@ -166,28 +166,25 @@ def main(stat):
             yolo_input = "test.jpg" # dont have see point
 
         # to use diff picture as example #
-        """
+        #"""
 
         # use real time seed photo
 
-        result, image = cam.read()
+        #result, image = cam.read()
 
-        if result:
-            feed_stats,cmd = yolo_detect(image)
-            print(feed_stats,cmd)
-            cv.waitKey(0)
-            cv.destroyWindow("Image")
-
-        else:
-            print("no image")
-            exit()
+        
+        # feed_stats,cmd = yolo_detect(image)
+        # print(feed_stats,cmd)
+        # cv.waitKey(0)
+        # cv.destroyWindow("Image")
 
         # use real time seed photo
 
         stat =~ stat # =~ means not, which let 1 become 0, 0 become 1
         
-        #feed_stats, cmd = yolo_detect(yolo_input) # feed_stats = 1 means found seed, the seed drop successfully on fanzhuan
+        feed_stats, cmd = yolo_detect(yolo_input) # feed_stats = 1 means found seed, the seed drop successfully on fanzhuan
                                                   # this  function is also use to proceed the cmd to decide whether roll or plant the seed
+        print(feed_stats,cmd)
         if feed_stats == 1: 
             break # if got seed (feed_stats) break this while loop, cont to do the code under
                   # if dont have seed, keep running this yolo detect while loop
@@ -210,8 +207,12 @@ def main(stat):
                 print("############ END ############\n")
                 #exit()
                 break
-    
-while True:
-    loop_count = loop_count + 1
-    main(loop_count)
-    # print(loop_count)
+
+try:
+    while True:
+        loop_count = loop_count + 1
+        main(loop_count)
+        # print(loop_count)
+
+except KeyboardInterrupt:
+    pass
