@@ -1,3 +1,4 @@
+#module 2 ros arduino test
 
 from std_msgs.msg import String
 import rospy
@@ -13,36 +14,36 @@ cam = cv.VideoCapture(cam_port)
 loop_count = 0
 feed_stats = 2
 #define a node then publish topic 'chatter' and also can subscribe topic
-rospy.init_node('YOLO')
+rospy.init_node('Module2_ROS')
 
 def SeedFeeding():
-    pub0 = rospy.Publisher('Arduino_cmd_SF', String, queue_size=5) # call arduino roll the seed
+    pub0 = rospy.Publisher('Mod2_cmd_SF', String, queue_size=5) # call arduino roll the seed
     time.sleep(0.3)
     pub0_command = "Feed"
     pub0.publish(pub0_command)
-    print("Feeding Seed...")
+    print("Mod2 Feeding...")
     try:
-        data0 = rospy.wait_for_message("/Arduino_SeedFeeding", String, timeout = 5) # timeout value base on the time need to feed one seed, if over this time then publish again
+        data0 = rospy.wait_for_message("/Ard_SF2", String, timeout = 5) # timeout value base on the time need to feed one seed, if over this time then publish again
         length0 = len(data0.data)
         if length0 > 4:
-            print("Seed Feeded\n")
+            print("Mod2 Feeded\n")
             return 1
     except rospy.ROSException:
         pass
 
 def SeedRoll():
     #if run only once fail, then use for loop and run few more times
-    pub = rospy.Publisher('Arduino_cmd_SR', String, queue_size=5) # call arduino roll the seed
+    pub = rospy.Publisher('Mod2_cmd_SR', String, queue_size=5) # call arduino roll the seed
     time.sleep(0.3)
     pub_command = "Roll"
     pub.publish(pub_command)
-    print("Rolling Seed...")
+    print("Mod2 Rolling...")
 
     try: 
-        data1 = rospy.wait_for_message("/Arduino_SeedRolling", String, timeout=5) # timeout value base on the time need to roll the seed
+        data1 = rospy.wait_for_message("/Ard_SR2", String, timeout=5) # timeout value base on the time need to roll the seed
         length1 = len(data1.data)
         if length1 > 4:
-            print("Seed Rolled\n")
+            print("Mod2 Rolled\n")
             return 1
     except rospy.ROSException:
         pass
@@ -52,14 +53,14 @@ def SeedRoll():
 
 def SeedPlanting():
     #if run only once fail, then use for loop and run few more times
-    pub2 = rospy.Publisher('Arduino_cmd_SP', String, queue_size=5) # seed position is right, call arduino plant it
+    pub2 = rospy.Publisher('Mod2_cmd_SP', String, queue_size=5) # seed position is right, call arduino plant it
     time.sleep(0.3)
     pub2_command = "Plant"
     pub2.publish(pub2_command)
     print("Planting...")
 
     try:
-        data2 = rospy.wait_for_message("/Arduino_SeedPlanting", String, timeout=60) # timeout value base on the time need to plant one seed
+        data2 = rospy.wait_for_message("/Ard_Plant", String, timeout=60) # timeout value base on the time need to plant one seed
         length2 = len(data2.data)
         if length2 > 4:
             print("Seed Planted\n")
@@ -151,7 +152,6 @@ def yolo_detect(img_input):
     # cv.imshow("Image", image1)
     # cv.waitKey(0)
     return start_cmd, roll_cmd
-
 
 
 
