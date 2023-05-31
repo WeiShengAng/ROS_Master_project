@@ -7,9 +7,9 @@ from time import sleep
 import os
 import time
 
-cam_port = "/dev/video1"
+cam_port = "/dev/video2"
 cam = cv2.VideoCapture(cam_port)
-rospy.init_node('Mod1_YOLOv4')
+rospy.init_node('Mod2_YOLOv4')
 
 weightsPath = "yolov4/yolov4-tiny-obj_best.weights"
 configPath = "yolov4/yolov4-tiny-obj.cfg"
@@ -63,7 +63,7 @@ while True:
             x, y, w, h = boxes[i]
             label = classes[class_ids[i]]
             confidence = confidences[i]
-            color = (0, 255, 0) 
+            color = (0, 255, 0)
             cv2.rectangle(frame, (x, y), (x +x, y + h), color, 2)
             cv2.putText(frame, f"{label}: {confidence:.2f}", (x, y - 10), font, 0.5, color, 2)
 
@@ -73,13 +73,13 @@ while True:
             if class_ids[i] == 1:
                 seed_point = 1
 
-    cv2.imshow("Module-1 Yolov4-tiny Real-time Detection", frame)
+    cv2.imshow("Module-2 Yolov4-tiny Real-time Detection", frame)
 
-    pub = rospy.Publisher('Mod1_yoloseed', Int8, queue_size=5) # call arduino roll the seed
+    pub = rospy.Publisher('Mod2_yoloseed', Int8, queue_size=5) # call arduino roll the seed
     pub_command = seed
     pub.publish(pub_command)
 
-    pub = rospy.Publisher('Mod1_yoloseedpoint', Int8, queue_size=5) # call arduino roll the seed
+    pub = rospy.Publisher('Mod2_yoloseedpoint', Int8, queue_size=5) # call arduino roll the seed
     pub_command = seed_point
     pub.publish(pub_command)
 
