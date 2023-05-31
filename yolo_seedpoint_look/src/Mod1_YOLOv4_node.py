@@ -1,4 +1,5 @@
 
+from std_msgs.msg import String, Int8
 import rospy
 import numpy as np
 import cv2
@@ -8,6 +9,7 @@ import time
 
 cam_port = "/dev/video1"
 cam = cv2.VideoCapture(cam_port)
+rospy.init_node('Mod1_YOLOv4')
 
 weightsPath = "yolov4/yolov4-tiny-obj_best.weights"
 configPath = "yolov4/yolov4-tiny-obj.cfg"
@@ -24,6 +26,9 @@ while True:
     if not ret:
         break
     height, width, channels = frame.shape
+
+    seed = 0 #reset this var
+    seed_point = 0 #reset this var
 
     # 对图像进行预处理
     blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
@@ -63,7 +68,22 @@ while True:
             cv2.rectangle(frame, (x, y), (x +x, y + h), color, 2)
             cv2.putText(frame, f"{label}: {confidence:.2f}", (x, y - 10), font, 0.5, color, 2)
 
+            if class_ids[i] == 0:
+                seed = 1
+            
+            if class_ids[i] == 1:
+                seed_point = 1
+
     cv2.imshow("Yolov4 Real-time Detection", frame)
+
+    pub = rospy.Publisher('Mod1_yoloseed', Int8, queue_size=5) # call arduino roll the seed
+    pub_command = seed
+    pub.publish(pub_command)
+
+    pub = rospy.Publisher('Mod1_yoloseedpoint', Int8, queue_size=5) # call arduino roll the seed
+    pub_command = seed_point
+    pub.publish(pub_command)
+
     if cv2.waitKey(1) == ord('q'):
         cam.release()
         cv2.destroyAllWindows()
