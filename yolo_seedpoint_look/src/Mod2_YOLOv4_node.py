@@ -1,5 +1,5 @@
 
-from std_msgs.msg import String, Int8
+from std_msgs.msg import Int16
 import rospy
 import numpy as np
 import cv2
@@ -7,9 +7,9 @@ from time import sleep
 import os
 import time
 
-cam_port = "/dev/video2"
+cam_port = "/dev/video1"
 cam = cv2.VideoCapture(cam_port)
-rospy.init_node('Mod2_YOLOv4')
+rospy.init_node('Module2_YOLOv4_tiny')
 
 weightsPath = "yolov4/yolov4-tiny-obj_best.weights"
 configPath = "yolov4/yolov4-tiny-obj.cfg"
@@ -75,13 +75,13 @@ while True:
 
     cv2.imshow("Module-2 Yolov4-tiny Real-time Detection", frame)
 
-    pub = rospy.Publisher('Mod2_yoloseed', Int8, queue_size=5) # call arduino roll the seed
-    pub_command = seed
-    pub.publish(pub_command)
+    pub1 = rospy.Publisher('Mod2_yoloseed', Int16, queue_size=16) # call arduino roll the seed
+    pub1_command = seed
+    pub1.publish(pub1_command)
 
-    pub = rospy.Publisher('Mod2_yoloseedpoint', Int8, queue_size=5) # call arduino roll the seed
-    pub_command = seed_point
-    pub.publish(pub_command)
+    pub2 = rospy.Publisher('Mod2_yoloseedpoint', Int16, queue_size=16) # call arduino roll the seed
+    pub2_command = seed_point
+    pub2.publish(pub2_command)
 
     if cv2.waitKey(1) == ord('q'):
         cam.release()
