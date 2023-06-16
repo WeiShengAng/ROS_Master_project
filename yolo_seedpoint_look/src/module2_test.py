@@ -2,14 +2,9 @@
 
 from std_msgs.msg import String, Int16
 import rospy
-import numpy as np
-import cv2 as cv
 from time import sleep
-import os
 import time
 
-cam_port = 4
-cam = cv.VideoCapture(cam_port)
 
 loop_count = 0
 feed_stats = 2
@@ -111,20 +106,14 @@ def main(stat):
     
     # feed_stats, cmd = yolo_detect(yolo_input) # feed_stats = 1 means found seed, the seed drop successfully on fanzhuan
                                                 # this  function is also use to proceed the cmd to decide whether roll or plant the seed
-    if seed_stats == 0: 
-        print("NO SEED")
-        # while True:             
-        #     feed_stats = SeedFeeding()  # feed the seed
-        #     if feed_stats == 1:      # if seed feeded then break
-        #         break # break seedfeeding publish loop
-    elif seed_stats == 1: 
-
+    if seed_stats == 1 or seed_temp == 1: 
+        seed_temp = 1 # to avoid yolo mistake and go to seed_stats = 0 func
         if roll_cmd == 1:                # if detected seed point
             print("芽點朝上")
-            # while True:             
-            #         roll_stats = SeedRoll()  # roll the seed
-            #         if roll_stats == 1:      # if seed roll done then break
-            #             break
+            while True:             
+                    roll_stats = SeedRoll()  # roll the seed
+                    if roll_stats == 1:      # if seed roll done then break
+                        break
 
         elif roll_cmd == 0:
             print("芽點朝下")
@@ -134,8 +123,31 @@ def main(stat):
             #         print("############ END ############\n")
             #         exit()
             #         break
-    time.sleep(3)
+            seed_temp = 0
+    # time.sleep(3)
 
+    elif seed_stats == 0: 
+        print("NO SEED")
+        while True:             
+            feed_stats = SeedFeeding()  # feed the seed
+            if feed_stats == 1:      # if seed feeded then break
+                break # break seedfeeding publish loop
+
+def wait_for_Init():
+    while True:
+        try:
+            data3 = rospy.wait_for_message("/Ard_Init", String, timeout=30) # timeout value base on the time need to plant one seed
+            length3 = len(data3.data)
+            if length3 > 4:
+                print("System Init-ed\n")
+                # exit()
+                time.sleep(1.5)
+                return 1
+        except rospy.ROSException:
+            pass
+
+
+wait_for_Init() # only do once, which is wait for arduino initialized the system
 try:
     while True:
         loop_count = loop_count + 1
@@ -143,4 +155,4 @@ try:
         # print(loop_count)
 
 except KeyboardInterrupt:
-    pass
+    exit()

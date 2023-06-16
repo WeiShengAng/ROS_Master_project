@@ -4,10 +4,8 @@ import rospy
 import numpy as np
 import cv2
 from time import sleep
-import os
-import time
 
-cam_port = "/dev/video0"
+cam_port = rospy.get_param("/camport1")
 cam = cv2.VideoCapture(cam_port)
 rospy.init_node('Module1_YOLOv4_tiny')
 
