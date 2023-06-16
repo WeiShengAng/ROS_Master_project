@@ -1,0 +1,22 @@
+<launch>
+
+<node name = "Module1_YOLOv4_tiny"  pkg = "YOLO_SEEDPOINT_LOOK"     type = "Mod1_YOLOv4_node.py"    output = "screen">
+    <param name="camport1"      value="/dev/video0"/>
+</node>
+
+<node name = "Module2_YOLOv4_tiny"  pkg = "YOLO_SEEDPOINT_LOOK"     type = "Mod2_YOLOv4_node.py"    output = "screen">
+    <param name="camport2"      value="/dev/video1"/>
+</node>
+
+<node name = "Module1_ROS"          pkg = "YOLO_SEEDPOINT_LOOK"     type = "module1_test.py"        output = "screen">
+</node>
+
+<node name = "Module2_ROS"          pkg = "YOLO_SEEDPOINT_LOOK"     type = "module2_test.py"        output = "screen">
+</node>
+
+<node name = "Plant_ROS"            pkg = "YOLO_SEEDPOINT_LOOK"     type = "Plant_Node.py"          output = "screen">
+</node>
+
+
+
+</launch>
