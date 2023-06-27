@@ -17,7 +17,7 @@ layer_names = net.getLayerNames()
 output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
 
 classes = []
-with open("yolov4/seed.names", "r") as f:
+with open("/home/nvidia/weisheng_ws/src/yolo_seedpoint_look/src/yolov4/seed.names", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 
 while True:

@@ -10,14 +10,14 @@ cam_port = "/dev/video2" #rospy.get_param("/camport1")
 cam = cv2.VideoCapture(cam_port)
 rospy.init_node('Module1_YOLOv4_tiny')
 
-weightsPath = "yolov4/yolov4-tiny-obj_best.weights"
-configPath = "yolov4/yolov4-tiny-obj.cfg"
+weightsPath = "/home/nvidia/weisheng_ws/src/yolo_seedpoint_look/src/yolov4/yolov4-tiny-obj_best.weights"
+configPath = "/home/nvidia/weisheng_ws/src/yolo_seedpoint_look/src/yolov4/yolov4-tiny-obj.cfg"
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 layer_names = net.getLayerNames()
 output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
 
 classes = []
-with open("yolov4/seed.names", "r") as f:
+with open("/home/nvidia/weisheng_ws/src/yolo_seedpoint_look/src/yolov4/seed.names", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 
 while True:

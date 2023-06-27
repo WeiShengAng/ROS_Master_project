@@ -117,7 +117,7 @@ def wait_for_Init():
                 # exit()
                 return 1
         except rospy.ROSException:
-            pass
+            exit()
 
 
 wait_for_Init() # only do once, which is wait for arduino initialized the system

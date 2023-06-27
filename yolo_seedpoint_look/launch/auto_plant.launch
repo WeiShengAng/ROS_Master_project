@@ -12,12 +12,12 @@
     <!-- <param name="camport2"      value="/dev/video1"/> -->
 </node>
 
-<!-- <node name = "Module1_ROS"          pkg = "yolo_seedpoint_look"     type = "module1_test.py"        output = "screen">
+<node name = "Module1_ROS"          pkg = "yolo_seedpoint_look"     type = "module1_test.py"        output = "screen">
 </node>
 
 <node name = "Module2_ROS"          pkg = "yolo_seedpoint_look"     type = "module2_test.py"        output = "screen">
 </node>
 
 <node name = "Plant_ROS"            pkg = "yolo_seedpoint_look"     type = "Plant_Node.py"          output = "screen">
-</node> -->
+</node>
 </launch>
