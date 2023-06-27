@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 from std_msgs.msg import String 
 import rospy
@@ -10,16 +11,37 @@ import time
 
 rospy.init_node('Plant_ROS')
 
+def Plant_msg_collect():
+    while True:
+        try:
+            data2 = rospy.wait_for_message("/Mod1_cmd_SP", String, timeout=1)
+            length2 = len(data2.data)
+            data3 = rospy.wait_for_message("/Mod2_cmd_SP", String, timeout=1)
+            length3 = len(data3.data)
+            print("here")
+            if length2 > 4:
+                mod1 = 1
+            if length3 > 4:
+                mod2 = 1
+
+            if mod1 == 1 and mod2 == 1:
+                mod1 = 0
+                mod2 = 0
+                return 1
+            else:
+                pass
+        except rospy.ROSException:
+            pass
+
+
 def Plant_Agent():
-    #if run only once fail, then use for loop and run few more times
-    pub = rospy.Publisher('cmd_Plant', String, queue_size=5) # seed position is right, call arduino plant it
-    time.sleep(0.3)
+    pub = rospy.Publisher('cmd_Plant', String, queue_size=1) # seed position is right, call arduino plant it
     pub_command = "Plant"
     pub.publish(pub_command)
     print("Planting...")
 
     try:
-        msg = rospy.wait_for_message("/Ard_Plant", String, timeout=30) # timeout value base on the time need to plant one seed
+        msg = rospy.wait_for_message("/Ard_Plant", String, timeout=1) # timeout value base on the time need to plant one seed
         length = len(msg.data)
         if length > 4:
             print("Seed Planted\n")
@@ -30,7 +52,9 @@ def Plant_Agent():
 
 try:
     while True:
-        Plant_Agent()
+        cmd = Plant_msg_collect()
+        if cmd == 1:
+            Plant_Agent()
 
 except KeyboardInterrupt:
     exit()
