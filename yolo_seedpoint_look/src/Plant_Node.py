@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from std_msgs.msg import String 
+from std_msgs.msg import String, Int16
 import rospy
 import numpy as np
 import cv2 as cv
@@ -18,7 +18,6 @@ def Plant_msg_collect():
             length2 = len(data2.data)
             data3 = rospy.wait_for_message("/Mod2_cmd_SP", String, timeout=1)
             length3 = len(data3.data)
-            print("here")
             if length2 > 4:
                 mod1 = 1
             if length3 > 4:
@@ -41,14 +40,22 @@ def Plant_Agent():
     print("Planting...")
 
     try:
-        msg = rospy.wait_for_message("/Ard_Plant", String, timeout=1) # timeout value base on the time need to plant one seed
-        length = len(msg.data)
-        if length > 4:
-            print("Seed Planted\n")
-            # exit()
-            return 1
+        recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=1) # timeout value base on the time need to plant one seed
+        recv = recv_msg.data
+        if recv == 1:
+            print("msg recv")
+            while True:
+                try:
+                    msg = rospy.wait_for_message("/Ard_Plant1", Int16, timeout=1) # timeout value base on the time need to plant one seed
+                    data1 = msg.data
+                    if data1 == 1:
+                        print("Seed Planted\n")
+                        exit()
+                        # return 1
+                except rospy.ROSException:
+                    pass
     except rospy.ROSException:
-        pass
+            pass
 
 try:
     while True:

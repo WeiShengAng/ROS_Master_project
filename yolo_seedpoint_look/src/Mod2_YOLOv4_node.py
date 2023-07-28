@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 from time import sleep
 
-cam_port = "/dev/video3" #rospy.get_param("/camport2")
+cam_port = "/dev/video2" #rospy.get_param("/camport2")
 cam = cv2.VideoCapture(cam_port)
 rospy.init_node('Module2_YOLOv4_tiny')
 
@@ -42,7 +42,7 @@ while True:
             class_id = np.argmax(scores)
             confidence = scores[class_id]
             if class_id == 0:
-                if confidence > 0.85:
+                if confidence > 0.8:
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
                     w = int(detection[2] * width)
@@ -56,7 +56,7 @@ while True:
                     class_ids.append(class_id)
 
             if class_id == 1:
-                if confidence > 0.65:
+                if confidence > 0.85:
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
                     w = int(detection[2] * width)
@@ -69,7 +69,7 @@ while True:
                     confidences.append(float(confidence))
                     class_ids.append(class_id)
 
-    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.85, 0.65)
+    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.8, 0.85)
 
     font = cv2.FONT_HERSHEY_SIMPLEX
     for i in range(len(boxes)):
@@ -79,9 +79,9 @@ while True:
             confidence = confidences[i]
             color = (0, 255, 0)
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-            text = "{}: {:.4f}".format(label[class_ids[i]], confidences[i])
-            cv2.putText(frame, text, (x, y - 10), font, 0.5, color, 2)
-            # cv2.putText(frame, f"{label}: {confidence:.2f}", (x, y - 10), font, 0.5, color, 2)
+            # text = "{}: {:.4f}".format(label[class_ids[i]], confidences[i])
+            # cv2.putText(frame, text, (x, y - 10), font, 0.5, color, 2)
+            cv2.putText(frame, f"{label}: {confidence:.2f}", (x, y - 10), font, 0.5, color, 2)
 
             if class_ids[i] == 0:
                 seed = 1

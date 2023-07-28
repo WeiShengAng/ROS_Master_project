@@ -77,12 +77,13 @@ def main(stat):
     # feed_stats, cmd = yolo_detect(yolo_input) # feed_stats = 1 means found seed, the seed drop successfully on fanzhuan
                                                 # this  function is also use to proceed the cmd to decide whether roll or plant the seed
     if seed_stats == 1: # or seed_temp == 1:
+        print("here1")
         while True:
             seedpoint_sub = rospy.wait_for_message("Mod1_yoloseedpoint", Int16) # timeout value base on the time need to roll the seed
             roll_cmd = seedpoint_sub.data
             if roll_cmd == 1:                # if detected seed point
                 print("芽點朝上")
-                while True:             
+                while True:
                         roll_stats = SeedRoll()  # roll the seed
                         if roll_stats == 1:      # if seed roll done then break
                             break
@@ -92,11 +93,11 @@ def main(stat):
                 while True:
                     plant_stats = SeedPlanting() # plant the seed
                     if plant_stats == 1:         # if plant done then break
-                        # print("############ END ############\n")
+                        end = rospy.get_rostime()
+                        rospy.loginfo("End time %i", end.secs)
+                        print("############ END ############\n")
                         exit()
                         break
-                seed_temp = 0
-                exit()
         # time.sleep(3)
 
     elif seed_stats == 0: 
@@ -117,11 +118,17 @@ def wait_for_Init():
                 # exit()
                 return 1
         except rospy.ROSException:
+            # exit()
+            pass
+        except KeyboardInterrupt:
             exit()
 
 
 wait_for_Init() # only do once, which is wait for arduino initialized the system
 try:
+    print("############ START ############\n")
+    now = rospy.get_rostime()
+    rospy.loginfo("Start time %i", now.secs)
     while True:
         loop_count = loop_count + 1
         main(loop_count)

@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 from time import sleep
 
-cam_port = "/dev/video2" #rospy.get_param("/camport1")
+cam_port = "/dev/video1" #rospy.get_param("/camport1")
 cam = cv2.VideoCapture(cam_port)
 rospy.init_node('Module1_YOLOv4_tiny')
 
@@ -42,7 +42,7 @@ while True:
             class_id = np.argmax(scores)
             confidence = scores[class_id]
             if class_id == 0:
-                if confidence > 0.85:
+                if confidence > 0.7:
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
                     w = int(detection[2] * width)
@@ -56,7 +56,7 @@ while True:
                     class_ids.append(class_id)
 
             if class_id == 1:
-                if confidence > 0.65:
+                if confidence > 0.92:
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
                     w = int(detection[2] * width)
@@ -69,7 +69,7 @@ while True:
                     confidences.append(float(confidence))
                     class_ids.append(class_id)
 
-    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.85, 0.65)
+    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.7, 0.92)
 
     font = cv2.FONT_HERSHEY_SIMPLEX
     for i in range(len(boxes)):
