@@ -20,6 +20,7 @@ def SeedFeeding():
         length0 = len(data0.data)
         if length0 > 4:
             print("Mod1 Feeded\n")
+            time.sleep(1.5)
             return 1
     except rospy.ROSException:
         pass
@@ -50,7 +51,7 @@ def SeedPlanting():
     pub2 = rospy.Publisher('Mod1_cmd_SP', String, queue_size=1) # seed position is right, call arduino plant it
     pub2_command = "Plant"
     pub2.publish(pub2_command)
-    print("Planting...")
+    # print("Planting...")
 
     try:
         data2 = rospy.wait_for_message("/Ard_Plant", String, timeout=1) # timeout value base on the time need to plant one seed
@@ -62,9 +63,9 @@ def SeedPlanting():
     except rospy.ROSException:
         pass
 
-def main(stat):
+def main():
     
-    try: 
+    try:
         seed_sub = rospy.wait_for_message("Mod1_yoloseed", Int16) # timeout value base on the time need to roll the seed
         seedpoint_sub = rospy.wait_for_message("Mod1_yoloseedpoint", Int16) # timeout value base on the time need to roll the seed
     except rospy.ROSException:
@@ -115,6 +116,7 @@ def wait_for_Init():
             length3 = len(data3.data)
             if length3 > 4:
                 print("System Init-ed\n")
+                time.sleep(1.5)
                 # exit()
                 return 1
         except rospy.ROSException:
@@ -130,8 +132,7 @@ try:
     now = rospy.get_rostime()
     rospy.loginfo("Start time %i", now.secs)
     while True:
-        loop_count = loop_count + 1
-        main(loop_count)
+        main()
         # print(loop_count)
 
 except KeyboardInterrupt:

@@ -5,3 +5,4 @@ darknet_ros/
 rosserial/
 yolov4/
 yolov4-tiny/
+yolo_seedpoint_look/src/yolov4/yolov4.cfg

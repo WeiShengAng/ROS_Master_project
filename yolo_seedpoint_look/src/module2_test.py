@@ -23,6 +23,7 @@ def SeedFeeding():
         length0 = len(data0.data)
         if length0 > 4:
             print("Mod2 Feeded\n")
+            time.sleep(1.5)
             return 1
     except rospy.ROSException:
         pass
@@ -53,7 +54,7 @@ def SeedPlanting():
     time.sleep(0.3)
     pub2_command = "Plant"
     pub2.publish(pub2_command)
-    print("Planting...")
+    # print("Planting...")
 
     try:
         data2 = rospy.wait_for_message("/Ard_Plant", String, timeout=1) # timeout value base on the time need to plant one seed
