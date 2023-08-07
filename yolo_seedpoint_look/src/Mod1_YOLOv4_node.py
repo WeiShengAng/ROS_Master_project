@@ -89,6 +89,16 @@ while True:
             if class_ids[i] == 1:
                 seed_point = 1
 
+    if seed == 1:
+        pass
+    else:
+        seed = 0
+
+    if seed_point == 1:
+        pass
+    else:
+        seed_point = 0
+
     cv2.imshow("Module-1 Yolov4-tiny Real-time Detection", frame)
 
     pub1 = rospy.Publisher('Mod1_yoloseed', Int16, queue_size=1) # call arduino roll the seed

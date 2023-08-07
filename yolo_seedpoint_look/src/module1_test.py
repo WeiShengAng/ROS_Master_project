@@ -51,7 +51,7 @@ def SeedPlanting():
     pub2 = rospy.Publisher('Mod1_cmd_SP', String, queue_size=1) # seed position is right, call arduino plant it
     pub2_command = "Plant"
     pub2.publish(pub2_command)
-    print("Planting1")
+    # print("Planting1")
 
     try:
         recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.2) # timeout value base on the time need to plant one seed
@@ -61,10 +61,9 @@ def SeedPlanting():
         pass
 
     if recv == 1:
-        print("msg recv 1")
+        # print("msg recv 1")
         while True:
             try:
-                print("while 1")
                 data2 = rospy.wait_for_message("/Ard_Plant", Int16, timeout=1) # timeout value base on the time need to plant one seed
                 ard_resp = data2.data
                 if ard_resp == 1:
@@ -118,30 +117,26 @@ def main():
     seed_stats = seed_sub.data
     roll_cmd = seedpoint_sub.data
 
-    # feed_stats, cmd = yolo_detect(yolo_input) # feed_stats = 1 means found seed, the seed drop successfully on fanzhuan
-                                                # this  function is also use to proceed the cmd to decide whether roll or plant the seed
     if seed_stats == 1: # or seed_temp == 1:
         _run = True
         while _run:
             seedpoint_sub = rospy.wait_for_message("Mod1_yoloseedpoint", Int16) # timeout value base on the time need to roll the seed
             roll_cmd = seedpoint_sub.data
             if roll_cmd == 1:                # if detected seed point
-                print("芽點朝上")
+                print("1 芽點朝上")
                 while True:
                         roll_stats = SeedRoll()  # roll the seed
                         if roll_stats == 1:      # if seed roll done then break
                             break
 
             elif roll_cmd == 0:
-                print("芽點朝下")
+                print("1 芽點朝下")
                 while True:
                     plant_stats = SeedPlanting() # plant the seed
                     if plant_stats == 1:         # if plant done then break
                         print("############ END ############\n")
-                        # return # not using return because it might cause program stop
                         _run = False
                         break
-        # time.sleep(3)
 
     elif seed_stats == 0: 
         print("NO SEED")
@@ -158,7 +153,7 @@ def wait_for_Init():
             length3 = len(data3.data)
             if length3 > 4:
                 print("System Init-ed\n")
-                time.sleep(1.5)
+                time.sleep(3)
                 # exit()
                 return 1
         except rospy.ROSException:
