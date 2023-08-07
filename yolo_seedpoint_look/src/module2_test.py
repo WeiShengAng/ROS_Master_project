@@ -8,7 +8,6 @@ import time
 
 
 loop_count = 0
-feed_stats = 2
 #define a node then publish topic 'chatter' and also can subscribe topic
 rospy.init_node('Module2_ROS')
 
@@ -19,11 +18,11 @@ def SeedFeeding():
     pub0.publish(pub0_command)
     print("Mod2 Feeding...")
     try:
-        data0 = rospy.wait_for_message("/Ard_SF2", String, timeout=1.2) # timeout value base on the time need to feed one seed, if over this time then publish again
+        data0 = rospy.wait_for_message("/Ard_SF2", String, timeout=1) # timeout value base on the time need to feed one seed, if over this time then publish again
         length0 = len(data0.data)
         if length0 > 4:
             print("Mod2 Feeded\n")
-            time.sleep(1.5)
+            time.sleep(1.0)
             return 1
     except rospy.ROSException:
         pass
@@ -36,11 +35,11 @@ def SeedRoll():
     print("Mod2 Rolling...")
 
     try: 
-        data1 = rospy.wait_for_message("/Ard_SR2", String, timeout=1.2) # timeout value base on the time need to roll the seed
+        data1 = rospy.wait_for_message("/Ard_SR2", String, timeout=0.5) # timeout value base on the time need to roll the seed
         length1 = len(data1.data)
         if length1 > 4:
             print("Mod2 Rolled\n")
-            time.sleep(0.3)
+            time.sleep(1.5)
             return 1
     except rospy.ROSException:
         pass
@@ -54,17 +53,60 @@ def SeedPlanting():
     time.sleep(0.3)
     pub2_command = "Plant"
     pub2.publish(pub2_command)
-    # print("Planting...")
+    print("Planting2")
 
     try:
-        data2 = rospy.wait_for_message("/Ard_Plant", String, timeout=1) # timeout value base on the time need to plant one seed
-        length2 = len(data2.data)
-        if length2 > 4:
-            print("Seed Planted\n")
-            # exit()
-            return 1
+        recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.2) # timeout value base on the time need to plant one seed
+        recv = recv_msg.data
     except rospy.ROSException:
+        recv = 0
         pass
+
+    if recv == 1:
+        print("msg recv 2")
+        while True:
+            try:
+                print("while 2")
+                data2 = rospy.wait_for_message("/Ard_Plant", Int16, timeout=1) # timeout value base on the time need to plant one seed
+                ard_resp = data2.data
+                if ard_resp > 4:
+                    end = rospy.get_rostime()
+                    rospy.loginfo("2_End %i", end.secs)
+                    print("Seed Planted\n")
+                    # exit()
+                    recv = 0
+                    return 1
+                else:
+                    pass
+            except rospy.ROSException:
+                pass
+    
+    # --- problem ---#
+    # this structure will have problem because 
+    # (i) recv is unbounded 
+    # (ii) /Ard_Plant return ROSExcept type error when arduino didnt pub, so it exit the while loop
+    # --- problem ---#
+    
+    # try:
+    #     recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.2) # timeout value base on the time need to plant one seed
+    #     recv = recv_msg.data
+    #     print("msg recv 2")
+    #     if recv == 1:
+    #         print("here2")
+    #         while True:
+    #             print("while 2")
+    #             data2 = rospy.wait_for_message("/Ard_Plant", Int16, timeout=1) # timeout value base on the time need to plant one seed
+    #             ard_resp = data2.data
+    #             if ard_resp > 4:
+    #                 end = rospy.get_rostime()
+    #                 rospy.loginfo("End time %i", end.secs)
+    #                 print("Seed Planted\n")
+    #                 # exit()
+    #                 return 1
+    #             else:
+    #                 pass
+    # except rospy.ROSException:
+    #     pass
 
     # rate = rospy.Rate(1000) #10hz
     # rate.sleep()
@@ -86,9 +128,9 @@ def main(stat):
     # feed_stats, cmd = yolo_detect(yolo_input) # feed_stats = 1 means found seed, the seed drop successfully on fanzhuan
                                                 # this  function is also use to proceed the cmd to decide whether roll or plant the seed
     if seed_stats == 1: # or seed_temp == 1: 
-        print("here2")
-        while True:
-            seedpoint_sub = rospy.wait_for_message("Mod1_yoloseedpoint", Int16) # timeout value base on the time need to roll the seed
+        _run = True
+        while _run:
+            seedpoint_sub = rospy.wait_for_message("Mod2_yoloseedpoint", Int16) # timeout value base on the time need to roll the seed
             roll_cmd = seedpoint_sub.data
             if roll_cmd == 1:                # if detected seed point
                 print("芽點朝上")
@@ -102,10 +144,8 @@ def main(stat):
                 while True:
                     plant_stats = SeedPlanting() # plant the seed
                     if plant_stats == 1:         # if plant done then break
-                        end = rospy.get_rostime()
-                        rospy.loginfo("End time %i", end.secs)
                         print("############ END ############\n")
-                        exit()
+                        _run = False
                         break
         # time.sleep(3)
 
@@ -124,6 +164,7 @@ def wait_for_Init():
             length3 = len(data3.data)
             if length3 > 4:
                 print("System Init-ed\n")
+                time.sleep(1.5)
                 # exit()
                 return 1
         except rospy.ROSException:

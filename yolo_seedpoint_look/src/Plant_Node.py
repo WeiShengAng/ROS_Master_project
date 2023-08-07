@@ -12,25 +12,24 @@ import time
 rospy.init_node('Plant_ROS')
 
 def Plant_msg_collect():
-    while True:
-        try:
-            data2 = rospy.wait_for_message("/Mod1_cmd_SP", String, timeout=1)
-            length2 = len(data2.data)
-            data3 = rospy.wait_for_message("/Mod2_cmd_SP", String, timeout=1)
-            length3 = len(data3.data)
-            if length2 > 4:
-                mod1 = 1
-            if length3 > 4:
-                mod2 = 1
+    try:
+        data2 = rospy.wait_for_message("/Mod1_cmd_SP", String, timeout=0.1)
+        length2 = len(data2.data)
+        data3 = rospy.wait_for_message("/Mod2_cmd_SP", String, timeout=0.1)
+        length3 = len(data3.data)
+        if length2 > 4:
+            mod1 = True
+        if length3 > 4:
+            mod2 = True
 
-            if mod1 == 1 and mod2 == 1:
-                mod1 = 0
-                mod2 = 0
-                return 1
-            else:
-                pass
-        except rospy.ROSException:
-            pass
+        if mod1 == True and mod2 == True:
+            mod1 = False
+            mod2 = False
+            return 1
+        else:
+            return 0
+    except rospy.ROSException:
+        pass
 
 
 def Plant_Agent():
@@ -46,12 +45,14 @@ def Plant_Agent():
             print("msg recv")
             while True:
                 try:
-                    msg = rospy.wait_for_message("/Ard_Plant1", Int16, timeout=1) # timeout value base on the time need to plant one seed
+                    msg = rospy.wait_for_message("/Ard_Plant", Int16, timeout=1) # timeout value base on the time need to plant one seed
                     data1 = msg.data
                     if data1 == 1:
+                        pub2 = rospy.Publisher('Plant_Node_resp', String, queue_size=1) # seed position is right, call arduino plant it
+                        pub2_command = "Planted"
+                        pub2.publish(pub2_command)
                         print("Seed Planted\n")
-                        exit()
-                        # return 1
+                        return
                 except rospy.ROSException:
                     pass
     except rospy.ROSException:
