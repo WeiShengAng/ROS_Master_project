@@ -8,6 +8,8 @@ from time import sleep
 
 cam_port = "/dev/video1" #rospy.get_param("/camport2")
 cam = cv2.VideoCapture(cam_port)
+cam.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+cam.set(cv2.CAP_PROP_FPS, 10)
 rospy.init_node('Module2_YOLOv4_tiny')
 
 weightsPath = "/home/nvidia/weisheng_ws/src/yolo_seedpoint_look/src/yolov4/yolov4-tiny-obj_best.weights"
@@ -108,6 +110,9 @@ while True:
     pub2 = rospy.Publisher('Mod2_yoloseedpoint', Int16, queue_size=1) # call arduino roll the seed
     pub2_command = seed_point
     pub2.publish(pub2_command)
+
+    seed = 0
+    seed_point = 0
 
     if cv2.waitKey(1) == ord('q'):
         cam.release()

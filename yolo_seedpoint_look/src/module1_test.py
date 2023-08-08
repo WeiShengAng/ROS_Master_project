@@ -20,7 +20,7 @@ def SeedFeeding():
         length0 = len(data0.data)
         if length0 > 4:
             print("Mod1 Feeded\n")
-            time.sleep(1.0)
+            time.sleep(0.5)
             return 1
     except rospy.ROSException:
         pass
@@ -38,7 +38,7 @@ def SeedRoll():
         length1 = len(data1.data)
         if length1 > 4:
             print("Mod1 Rolled\n")
-            time.sleep(1.5)
+            time.sleep(1)
             return 1
     except rospy.ROSException:
         pass
@@ -51,10 +51,10 @@ def SeedPlanting():
     pub2 = rospy.Publisher('Mod1_cmd_SP', String, queue_size=1) # seed position is right, call arduino plant it
     pub2_command = "Plant"
     pub2.publish(pub2_command)
-    # print("Planting1")
+    print("Planting1")
 
     try:
-        recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.2) # timeout value base on the time need to plant one seed
+        recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.3) # timeout value base on the time need to plant one seed
         recv = recv_msg.data
     except rospy.ROSException:
         recv = 0
@@ -64,11 +64,13 @@ def SeedPlanting():
         # print("msg recv 1")
         while True:
             try:
-                data2 = rospy.wait_for_message("/Ard_Plant", Int16, timeout=1) # timeout value base on the time need to plant one seed
+                data2 = rospy.wait_for_message("/Ard_Plant", Int16, timeout=0.1) # timeout value base on the time need to plant one seed
                 ard_resp = data2.data
                 if ard_resp == 1:
                     end = rospy.get_rostime()
                     rospy.loginfo("1_End %i", end.secs)
+                    duration = end.secs - now.secs
+                    rospy.loginfo("Used Time : %i", duration)
                     print("Seed Planted\n")
                     recv = 0
                     # exit()
@@ -165,10 +167,10 @@ def wait_for_Init():
 
 wait_for_Init() # only do once, which is wait for arduino initialized the system
 try:
-    print("############ START ############\n")
-    now = rospy.get_rostime()
-    rospy.loginfo("Start time %i", now.secs)
     while True:
+        print("############ START ############\n")
+        now = rospy.get_rostime()
+        rospy.loginfo("Start time %i", now.secs)
         main()
         # print(loop_count)
 

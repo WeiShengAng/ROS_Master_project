@@ -39,7 +39,7 @@ def Plant_Agent():
     print("Planting...")
 
     try:
-        recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.2) # timeout value base on the time need to plant one seed
+        recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.3) # timeout value base on the time need to plant one seed
         recv = recv_msg.data
     except rospy.ROSException:
         recv = 0
@@ -49,7 +49,7 @@ def Plant_Agent():
         print("msg recv")
         while True:
             try:
-                msg = rospy.wait_for_message("/Ard_Plant", Int16, timeout=1) # timeout value base on the time need to plant one seed
+                msg = rospy.wait_for_message("/Ard_Plant", Int16, timeout=0.1) # timeout value base on the time need to plant one seed
                 data1 = msg.data
                 if data1 == 1:
                     print("Seed Planted\n")
