@@ -6,10 +6,11 @@ import rospy
 from time import sleep
 import time
 
-
 loop_count = 0
 #define a node then publish topic 'chatter' and also can subscribe topic
 rospy.init_node('Module2_ROS')
+
+pub2 = rospy.Publisher('Mod2_cmd_SP', String, queue_size=1) # seed position is right, call arduino plant it
 
 def SeedFeeding():
     pub0 = rospy.Publisher('Mod2_cmd_SF', String, queue_size=1) # call arduino roll the seed
@@ -49,17 +50,18 @@ def SeedRoll():
 
 def SeedPlanting():
     #if run only once fail, then use for loop and run few more times
-    pub2 = rospy.Publisher('Mod2_cmd_SP', String, queue_size=1) # seed position is right, call arduino plant it
     pub2_command = "Plant"
     pub2.publish(pub2_command)
     print("Planting2")
 
-    try:
-        recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.5) # timeout value base on the time need to plant one seed
-        recv = recv_msg.data
-    except rospy.ROSException:
-        recv = 0
-        pass
+    # try:
+    #     recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.01) # timeout value base on the time need to plant one seed
+    #     recv = recv_msg.data
+    # except rospy.ROSException:
+    #     recv = 0
+    #     pass
+
+    recv = pub2.get_num_connections()
 
     if recv == 1:
         # print("msg recv 2")
@@ -155,7 +157,7 @@ def wait_for_Init():
     while True:
         try:
             print("System Initializing\n")
-            data3 = rospy.wait_for_message("/Ard_Init", String, timeout=5) # timeout value base on the time need to plant one seed
+            data3 = rospy.wait_for_message("/Ard_Init", String, timeout=0.1) # timeout value base on the time need to plant one seed
             length3 = len(data3.data)
             if length3 > 4:
                 print("System Init-ed\n")

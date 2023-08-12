@@ -44,7 +44,7 @@ while True:
             class_id = np.argmax(scores)
             confidence = scores[class_id]
             if class_id == 0:
-                if confidence > 0.86:
+                if confidence > 0.8:
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
                     w = int(detection[2] * width)

@@ -10,6 +10,7 @@ import time
 
 
 rospy.init_node('Plant_ROS')
+pub = rospy.Publisher('cmd_Plant', String, queue_size=1) # seed position is right, call arduino plant it
 
 def Plant_msg_collect():
     try:
@@ -33,23 +34,24 @@ def Plant_msg_collect():
 
 
 def Plant_Agent():
-    pub = rospy.Publisher('cmd_Plant', String, queue_size=1) # seed position is right, call arduino plant it
     pub_command = "Plant"
     pub.publish(pub_command)
     print("Planting...")
 
-    try:
-        recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.3) # timeout value base on the time need to plant one seed
-        recv = recv_msg.data
-    except rospy.ROSException:
-        recv = 0
-        pass
+    # try:
+    #     # recv_msg = rospy.wait_for_message("/Ard_Recv", Int16, timeout=0.01) # timeout value base on the time need to plant one seed
+    #     # recv = recv_msg.data
+    # except rospy.ROSException:
+    #     recv = 0
+    #     pass
+
+    recv = pub.get_num_connections()
 
     if recv == 1:
         print("msg recv")
         while True:
             try:
-                msg = rospy.wait_for_message("/Ard_Plant", Int16, timeout=0.1) # timeout value base on the time need to plant one seed
+                msg = rospy.wait_for_message("/Ard_Plant", Int16, timeout=0.01) # timeout value base on the time need to plant one seed
                 data1 = msg.data
                 if data1 == 1:
                     print("Seed Planted\n")

@@ -72,6 +72,7 @@ while True:
                     class_ids.append(class_id)
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.35, 0.5)
+    # (boxes, confidences, score_threshold, nms_threshold) lower nms_threshold will eliminate dupclicate bounding box
 
     font = cv2.FONT_HERSHEY_SIMPLEX
     for i in range(len(boxes)):

@@ -19,6 +19,6 @@
 <node name = "Module2_ROS"          pkg = "yolo_seedpoint_look"     type = "module2_test.py"        output = "screen"   required = "true">
 </node>
 
-<node name = "Plant_ROS"            pkg = "yolo_seedpoint_look"     type = "Plant_Node.py"          output = "screen"   required = "true">
-</node>
+<!-- <node name = "Plant_ROS"            pkg = "yolo_seedpoint_look"     type = "Plant_Node.py"          output = "screen"   required = "true">
+</node> -->
 </launch>
